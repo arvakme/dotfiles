@@ -1,0 +1,4 @@
+# 跟随终端明暗自动切换：yazi 启动时查询终端背景色，随 theme 切换即可。
+[flavor]
+dark  = "butler-dark"
+light = "butler-light"

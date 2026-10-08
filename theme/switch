@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Light/Dark = Butler (palette in theme/butler/palette.json, files from generate.py).
+# Usage: theme [light|dark|toggle|auto|status]
+set -euo pipefail
+
+ROOT="${HOME}/.config"
+STATE="${ROOT}/theme/current"
+LOCK="${TMPDIR:-/tmp}/theme-switch.${UID}.lock"
+
+current() {
+  tr -d '[:space:]' <"${STATE}" 2>/dev/null || echo light
+}
+
+detect_system() {
+  if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -qi Dark; then
+    echo dark
+  else
+    echo light
+  fi
+}
+
+lock_is_fresh() {
+  [[ -f "${LOCK}" ]] || return 1
+  local ts now
+  ts="$(cat "${LOCK}" 2>/dev/null || echo 0)"
+  now="$(date +%s)"
+  [[ "${ts}" =~ ^[0-9]+$ ]] || return 1
+  (( now - ts < 12 ))
+}
+
+CMD="${1:-}"
+MODE="${CMD}"
+case "${MODE}" in
+  light | dark) ;;
+  toggle)
+    if [[ "$(current)" == dark ]]; then MODE=light; else MODE=dark; fi
+    ;;
+  auto | system)
+    MODE="$(detect_system)"
+    # theme-watch fires when the OS catches up after a click-toggle;
+    # a fresh lock means the full path just ran, so don't run it again.
+    if lock_is_fresh; then
+      echo "${MODE}"
+      exit 0
+    fi
+    if [[ "$(current)" == "${MODE}" ]]; then
+      echo "${MODE}"
+      exit 0
+    fi
+    ;;
+  "" | status)
+    echo "theme: $(current) (system: $(detect_system))"
+    exit 0
+    ;;
+  -h | --help | help)
+    echo "usage: theme [light|dark|toggle|auto|status]"
+    exit 0
+    ;;
+  *)
+    echo "usage: theme [light|dark|toggle|auto|status]" >&2
+    exit 1
+    ;;
+esac
+
+printf '%s\n' "$(date +%s)" >"${LOCK}"
+trap 'rm -f "${LOCK}"' EXIT
+
+printf '%s\n' "${MODE}" >"${STATE}"
+
+# oh-my-posh 不在这里：提示符自己问 theme/mode，
+# 再维护一个 current.omp.json 软链就是同一个事实的第二份表示。
+if [[ "${MODE}" == dark ]]; then
+  ln -sfn "butler-dark.conf" "${ROOT}/tmux/themes/current.conf"
+else
+  ln -sfn "butler-light.conf" "${ROOT}/tmux/themes/current.conf"
+fi
+ln -sfn "delta-${MODE}.gitconfig" "${ROOT}/git/delta.gitconfig"
+
+# Explicit light/dark also flips macOS so Rime + Cursor follow.
+# `auto` only *reads* the OS (used by the appearance watcher).
+if [[ "${CMD}" == light || "${CMD}" == dark || "${CMD}" == toggle ]]; then
+  if [[ "${MODE}" == dark ]]; then
+    osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to true' >/dev/null 2>&1 || true
+  else
+    osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to false' >/dev/null 2>&1 || true
+  fi
+fi
+
+# 给正在运行的 tmux 换主题。
+if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+  tmux source-file "${ROOT}/tmux/themes/current.conf" \; display-message "${MODE}" 2>/dev/null || true
+fi
+
+echo "${MODE}"

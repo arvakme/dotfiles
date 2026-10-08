@@ -1,0 +1,6 @@
+# 文本一律进 nvim；其余 open 规则沿用 yazi 默认，只覆盖 edit 这一个 opener。
+# yazi 26.x 的参数占位符是 %s（旧写法 "$@" 不再展开）。
+[opener]
+edit = [
+	{ run = 'nvim %s', desc = "nvim", block = true, for = "unix" },
+]

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Follow macOS light/dark and run `theme auto` for tmux / nvim / oh-my-posh / delta.
+set -euo pipefail
+
+SWITCH="${HOME}/.config/theme/switch"
+last=""
+
+apply() {
+  local now=light
+  if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -qi Dark; then
+    now=dark
+  fi
+  if [[ "${now}" != "${last}" ]]; then
+    last="${now}"
+    "${SWITCH}" auto >/dev/null
+  fi
+}
+
+apply
+while true; do
+  sleep 2
+  apply
+done

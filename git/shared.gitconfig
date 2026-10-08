@@ -1,0 +1,10 @@
+# Git settings shared by these dotfiles: delta as the pager, nvim as the editor, colours from theme/switch.
+# Include it from your own ~/.gitconfig, which keeps your name and e-mail:
+#   git config --global --add include.path ~/.config/git/shared.gitconfig
+[core]
+	pager = delta
+	editor = nvim
+[interactive]
+	diffFilter = delta --color-only
+[include]
+	path = ~/.config/git/delta.gitconfig

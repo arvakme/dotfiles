@@ -1,0 +1,14 @@
+# Written at runtime by theme/switch
+theme/current
+tmux/themes/current.conf
+git/delta.gitconfig
+
+# Caches and machine state that tools write into these folders
+tmux/plugins/
+karabiner/automatic_backups/
+zsh/.zcompdump*
+zsh/.zcompcache/
+zsh/.zsh_sessions/
+zsh/.env
+__pycache__/
+.DS_Store

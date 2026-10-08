@@ -1,0 +1,6 @@
+[tools]
+cosign = "latest"
+herdr = "latest"
+node = "26"   # global default; projects pin their own in mise.toml
+pnpm = "latest"
+python = "3.12"

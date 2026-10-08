@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# 明暗判断的唯一入口：任何需要知道"现在算深色还是浅色"的东西都问这里，不要各自去读 theme/current。
+# 读 switch 写的全局值 ~/.config/theme/current；永远输出 light 或 dark，永远退出 0，查不到就当 light。
+v="$(tr -d '[:space:]' <"${HOME}/.config/theme/current" 2>/dev/null)"
+[[ "${v}" == dark ]] && echo dark || echo light

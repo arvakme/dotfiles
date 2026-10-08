@@ -1,0 +1,10 @@
+gui:
+  mouseEvents: false
+  nerdFontsVersion: "3"
+  theme:
+    selectedLineBgColor:
+      - reverse
+git:
+  paging:
+    colorArg: always
+    pager: delta --paging=never
