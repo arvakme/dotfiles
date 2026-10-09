@@ -9,9 +9,9 @@ term=xterm-256color
 theme = light:butler-light,dark:butler-dark
 # Liquid-glass: translucent background with heavy blur, text cells stay opaque
 # 不要设 minimum-contrast：对比度不够的文字会被直接换成纯黑/纯白，浅色主题下语法高亮会整片消失
-background-opacity = 0.82
+background-opacity = 0.92
 background-opacity-cells = false
-background-blur = 40
+background-blur = macos-glass-regular
 # English and code in Paper Mono (OFL, github.com/paper-design/paper-mono); Chinese falls back to Maple Mono NF CN (Light: Regular plus font-thicken looks bold next to Paper Mono),
 # anything both lack (Nerd Font icons) to Comic Shanns. Keep ss02 (duospace) off: it breaks the cell grid.
 font-family = Paper Mono

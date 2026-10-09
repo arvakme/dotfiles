@@ -11,7 +11,7 @@
     plus-emph-style = syntax "#3e8fb0"
     line-numbers-minus-style = "#eb6f92"
     line-numbers-plus-style = "#3e8fb0"
-    line-numbers-zero-style = "#6e6a86"
+    line-numbers-zero-style = "#9490b3"
     line-numbers-left-style = "#56526e"
     line-numbers-right-style = "#56526e"
 [delta "interactive"]

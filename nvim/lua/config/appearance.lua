@@ -54,7 +54,7 @@ end
 
 function M.chrome()
 	local p = palette()
-	vim.api.nvim_set_hl(0, "InclineNormal", { bg = p.cyan, fg = p.on_accent, bold = true })
+	vim.api.nvim_set_hl(0, "InclineNormal", { bg = p.fill, fg = p.on_fill, bold = true })
 	vim.api.nvim_set_hl(0, "InclineNormalNC", { bg = p.panel, fg = p.muted })
 	vim.api.nvim_set_hl(0, "OilBorder", { fg = p.cyan, bg = "NONE" })
 	-- 只重配已加载的插件。colorscheme 在 LazyVim setup 早期就会跑，这时 require 会把

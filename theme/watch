@@ -3,7 +3,21 @@
 set -euo pipefail
 
 SWITCH="${HOME}/.config/theme/switch"
+HERDR="${HOME}/.local/share/mise/installs/herdr/latest/herdr"
 last=""
+
+# herdr tells panes about a light/dark switch ~0.5s before its own OSC 11 reply catches up (herdrdev/herdr#4183),
+# so Pi and Claude Code re-query, read the old background and keep the old theme. Once the reply is right,
+# send them the same CSI ?997 report a terminal would. Remove this when herdr fixes the ordering.
+nudge_herdr_agents() {
+  local code=1 panes pane
+  [[ "$1" == light ]] && code=2
+  sleep 1
+  panes="$("${HERDR}" pane list 2>/dev/null)" || return 0 # herdr not running
+  while read -r pane; do
+    "${HERDR}" pane send-text "${pane}" $'\e[?997;'"${code}"n >/dev/null
+  done < <(jq -r '.result.panes[] | select(.agent == "pi" or .agent == "claude") | .pane_id' <<<"${panes}")
+}
 
 apply() {
   local now=light
@@ -13,6 +27,7 @@ apply() {
   if [[ "${now}" != "${last}" ]]; then
     last="${now}"
     "${SWITCH}" auto >/dev/null
+    nudge_herdr_agents "${now}"
   fi
 }
 

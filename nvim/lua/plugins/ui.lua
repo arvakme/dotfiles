@@ -107,8 +107,8 @@ return {
 						filename = "[+] " .. filename
 					end
 
-					local icon, color = require("nvim-web-devicons").get_icon_color(filename)
-					return { { icon, guifg = color }, { " " }, { filename } }
+					local icon = require("nvim-web-devicons").get_icon(filename)
+					return { { icon }, { " " }, { filename } }
 				end,
 			})
 			appearance.chrome()

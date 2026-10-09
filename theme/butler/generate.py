@@ -22,7 +22,7 @@ def derive(c: dict) -> dict:
     mix = lambda front, behind, a: "#%02x%02x%02x" % tuple(round((f * a + b * (1 - a)) * 255) for f, b in zip(_rgb(front), _rgb(behind)))
     return {"bg": c["base"], "panel": c["surface0"], "deep": c["mantle"], "selected": c["surface1"], "line": c["surface2"],
             "ice": c["text"], "steel": c["subtext0"], "muted": c["subtext1"], "dim": c["overlay1"], "comment": c["overlay0"],
-            "cyan": c["sky"], "glow": c["teal"], "blue": c["blue"], "sky": c["sapphire"], "lavender": c["lavender"], "mint": c["green"],
+            "cyan": c["sky"], "glow": c["teal"], "blue": c["blue"], "sky": c["sapphire"], "lavender": c["lavender"], "fill": c["fill"], "mint": c["green"],
             "amber": c["peach"], "coral": c["red"], "on_accent": c["base"], "violet": c["mauve"], "gold": c["yellow"], "peach": c["maroon"],
             "ok_bg": mix(c["green"], c["base"], 0.14), "err_bg": mix(c["red"], c["base"], 0.14)}
 
@@ -386,6 +386,13 @@ LEVELS = {"text": 7.0, "subtext": 6.0, "muted": 5.2, "note": 4.8, "colour": 4.8}
 VIVID = 0.07
 
 # ---------------------------------------------------------------- Ghostty
+def on_fill(p: dict) -> str:
+    """Text drawn on the pastel `fill` blocks (cursor, herdr's focused tab chip): the theme background when it reads on the fill, else dark ink."""
+    return p["bg"] if contrast(p["bg"], p["fill"]) >= 4.5 else fit(p["ice"], [p["fill"]], 7.0)
+
+for _p in PAL.values():
+    _p["on_fill"] = on_fill(_p)
+
 def ghostty(mode: str, p: dict) -> str:
     """A terminal theme. Text is fitted on the background and on its worst cases through the window's transparency (black or white behind);
     coloured text keeps its saturation, the grey `bright black` stays a visible note colour (the gate in `--check` is 4.5:1, WCAG AA)."""
@@ -397,7 +404,7 @@ def ghostty(mode: str, p: dict) -> str:
             grey(p["steel"], "muted"), grey(p["comment"], "note"),
             bright(p["coral"]), bright(p["mint"]), bright(p["gold"]), bright(p["lavender"]), bright(p["violet"]), bright(p["glow"]),
             grey(p["ice"], "text")]
-    lines = [f"# Butler {mode} — {HEADER}", f"background = {p['bg']}", f"foreground = {grey(p['ice'], 'text')}", f"cursor-color = {hue(p['cyan'])}", f"cursor-text = {p['bg']}",
+    lines = [f"# Butler {mode} — {HEADER}", f"background = {p['bg']}", f"foreground = {grey(p['ice'], 'text')}", f"cursor-color = {p['fill']}", f"cursor-text = {p['on_fill']}",
              f"selection-background = {p['selected']}", f"selection-foreground = {fit(p['ice'], [p['selected']], 7.0)}"]
     lines += [f"palette = {i}={c}" for i, c in enumerate(ansi)]
     return "\n".join(lines) + "\n"
@@ -413,8 +420,8 @@ def herdr_tokens(p: dict) -> dict:
     active = blend(p["violet"], p["selected"], 0.10)
     surfaces = glass(p["bg"]) + [active]
     hue = lambda c: fit(c, surfaces, LEVELS["colour"], VIVID)
-    return {"accent": hue(p["cyan"]), "panel_bg": "reset", "sidebar_bg": "reset", "active_row_bg": active, "selection_bg": active,
-            "surface0": p["panel"], "surface1": p["line"], "surface_dim": p["bg"], "overlay0": hue(p["violet"]), "overlay1": hue(p["mint"]),
+    return {"accent": p["fill"], "panel_bg": "reset", "sidebar_bg": "reset", "active_row_bg": active, "selection_bg": active,
+            "surface0": p["panel"], "surface1": p["line"], "surface_dim": p["on_fill"], "overlay0": hue(p["violet"]), "overlay1": hue(p["mint"]),
             "text": fit(p["ice"], surfaces, LEVELS["text"]), "subtext0": hue(p["sky"]), "mauve": hue(p["violet"]), "green": hue(p["mint"]), "yellow": hue(p["gold"]),
             "red": hue(p["coral"]), "blue": hue(p["sky"]), "teal": hue(p["glow"]), "peach": hue(p["peach"])}
 
@@ -442,22 +449,22 @@ def write_herdr_theme() -> None:
 # ---------------------------------------------------------------- Pi (Butler UI themes)
 PI_TEXT = ("ice", "cyan", "glow", "blue", "steel", "muted", "dim", "mint", "amber", "coral", "violet", "gold", "sky", "lavender", "peach")
 PI_ROLES = {
-    "accent": "cyan", "border": "sky", "borderAccent": "violet", "borderMuted": "line", "success": "mint", "error": "coral", "warning": "amber",
+    "accent": "cyan", "border": "sky", "borderAccent": "fill", "borderMuted": "line", "success": "mint", "error": "coral", "warning": "amber",
     "muted": "muted", "dim": "dim", "text": "ice", "thinkingText": "lavender", "scrollbarTrack": "line", "scrollbarThumb": "steel",
     "userMessageText": "ice", "customMessageText": "ice", "customMessageLabel": "violet", "toolTitle": "sky", "toolOutput": "muted",
     "mdHeading": "gold", "mdLink": "sky", "mdLinkUrl": "dim", "mdCode": "mint", "mdCodeBlock": "ice", "mdCodeBlockBorder": "line", "mdQuote": "lavender",
-    "mdQuoteBorder": "violet", "mdHr": "line", "mdListBullet": "amber", "toolDiffAdded": "mint", "toolDiffRemoved": "coral", "toolDiffContext": "muted",
+    "mdQuoteBorder": "fill", "mdHr": "line", "mdListBullet": "amber", "toolDiffAdded": "mint", "toolDiffRemoved": "coral", "toolDiffContext": "muted",
     "syntaxComment": "dim", "syntaxKeyword": "violet", "syntaxFunction": "sky", "syntaxVariable": "ice", "syntaxString": "mint", "syntaxNumber": "peach",
     "syntaxType": "gold", "syntaxOperator": "cyan", "syntaxPunctuation": "muted", "thinkingOff": "line", "thinkingMinimal": "dim", "thinkingLow": "steel",
     "thinkingMedium": "sky", "thinkingHigh": "cyan", "thinkingXhigh": "glow", "thinkingMax": "violet", "bashMode": "amber",
-    "selectedBg": "selected", "userMessageBg": "panel", "customMessageBg": "deep", "toolPendingBg": "panel", "toolSuccessBg": "ok_bg", "toolErrorBg": "err_bg",
+    "selectedBg": "selected", "userMessageBg": "", "customMessageBg": "deep", "toolPendingBg": "panel", "toolSuccessBg": "ok_bg", "toolErrorBg": "err_bg",
 }
 
 def pi_vars(p: dict) -> dict:
     """The colour vocabulary of a Pi theme: text colours are fitted to the terminal background (also through the glass) and to the panels they sit on."""
     surfaces = glass(p["bg"]) + [p["panel"], p["deep"]]
     out = {name: fit(p[name], surfaces, LEVELS["text"] if name == "ice" else LEVELS["colour"], 0.0 if name in ("ice", "steel", "muted", "dim") else VIVID) for name in PI_TEXT}
-    out.update({name: p[name] for name in ("line", "panel", "deep", "selected", "ok_bg", "err_bg")})
+    out.update({name: p[name] for name in ("fill", "line", "panel", "deep", "selected", "ok_bg", "err_bg")})
     return out
 
 def write_pi_theme(mode: str, p: dict) -> None:
@@ -477,10 +484,7 @@ NVIM_TEXT = {"ice": LEVELS["text"], "steel": LEVELS["muted"], "muted": LEVELS["m
 NVIM_ACCENTS = ("cyan", "glow", "blue", "sky", "lavender", "mint", "amber", "coral", "violet", "gold", "peach")
 
 def nvim_vars(mode: str, p: dict) -> dict:
-    """Light theme only: its syntax colours are too pale on the light glass, so fit them to the window background (also through the glass) and the
-    cursor-line surface. The dark theme is already readable and stays as the palette defines it."""
-    if mode == "dark":
-        return p
+    """Syntax colours fitted to the window background (also through the glass) and the cursor-line surface, so comments and line numbers stay readable."""
     surfaces = glass(p["bg"]) + [p["deep"]]
     out = dict(p)
     for name, minimum in NVIM_TEXT.items():
@@ -507,14 +511,15 @@ def check() -> int:
         p = PAL[mode]
         theme = ghostty(mode, p)
         get = lambda key: re.search(rf"^{key} = (#\w+)$", theme, re.M).group(1)
-        pairs = [("selection text", get("selection-foreground"), get("selection-background"), 7.0)]
+        pairs = [("selection text", get("selection-foreground"), get("selection-background"), 7.0),
+                 ("cursor text", get("cursor-text"), get("cursor-color"), 4.5)]
         for behind in glass(p["bg"]):
             pairs.append((f"foreground over {behind}", get("foreground"), behind, 7.0 if behind == p["bg"] else 4.5))
-            pairs.append((f"cursor over {behind}", get("cursor-color"), behind, 4.5))
             pairs += [(f"ansi {i} over {behind}", c, behind, 4.5) for i, c in enumerate(re.findall(r"palette = \d+=(#\w+)", theme)) if i != 0]
         tokens = herdr_tokens(p)
         surfaces = {f"glass {bg}": bg for bg in glass(p["bg"])} | {"active_row_bg": tokens["active_row_bg"]}
-        for name in ("accent", "overlay0", "overlay1", "text", "subtext0", "mauve", "green", "yellow", "red", "blue", "teal", "peach"):
+        pairs.append(("herdr focused tab label", tokens["surface_dim"], tokens["accent"], 4.5))
+        for name in ("overlay0", "overlay1", "text", "subtext0", "mauve", "green", "yellow", "red", "blue", "teal", "peach"):
             pairs += [(f"herdr {name} on {s}", tokens[name], bg, 4.5) for s, bg in surfaces.items()]
         surfaces_pi = glass(p["bg"]) + [p["panel"], p["deep"]]
         pairs += [(f"pi {name} on {bg}", color, bg, 4.5) for name, color in pi_vars(p).items() if name in PI_TEXT for bg in surfaces_pi]

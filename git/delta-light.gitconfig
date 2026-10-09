@@ -5,15 +5,15 @@
     navigate = true
     syntax-theme = GitHub
     features = decorations
-    minus-style = syntax "#f0e0dd"
+    minus-style = syntax "#ece1e6"
     minus-emph-style = syntax "#b4637a"
-    plus-style = syntax "#dde1de"
+    plus-style = syntax "#d8e1e8"
     plus-emph-style = syntax "#286983"
     line-numbers-minus-style = "#b4637a"
     line-numbers-plus-style = "#286983"
-    line-numbers-zero-style = "#9893a5"
-    line-numbers-left-style = "#cecacd"
-    line-numbers-right-style = "#cecacd"
+    line-numbers-zero-style = "#9a99ad"
+    line-numbers-left-style = "#cdcddd"
+    line-numbers-right-style = "#cdcddd"
 [delta "interactive"]
     keep-plus-minus-markers = true
 [delta "decorations"]
